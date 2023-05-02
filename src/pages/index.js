@@ -1,15 +1,15 @@
-import { useState } from 'react';
-import Head from 'next/head'
+import { useState } from "react";
+import Head from "next/head";
 
-import Layout from '@/components/Layout';
-import Section from '@/components/Section';
-import Container from '@/components/Container';
-import Form from '@/components/Form';
-import FormRow from '@/components/FormRow';
-import FormInput from '@/components/FormInput';
-import Button from '@/components/Button';
+import Layout from "@/components/Layout";
+import Section from "@/components/Section";
+import Container from "@/components/Container";
+import Form from "@/components/Form";
+import FormRow from "@/components/FormRow";
+import FormInput from "@/components/FormInput";
+import Button from "@/components/Button";
 
-import styles from '@/styles/Home.module.scss'
+import styles from "@/styles/Home.module.scss";
 
 export default function Home() {
   const [image, setImage] = useState();
@@ -18,16 +18,19 @@ export default function Home() {
   async function handleOnGenerate(e) {
     e.preventDefault();
 
+    const fields = Array.from(e.currentTarget.elements);
+    const prompt = fields.find((el) => el.name === "prompt").value;
+
     setIsLoading(true);
     setImage(undefined);
 
-    const { image } = await fetch('/api/image', {
-      method: 'POST',
+    const { image } = await fetch("/api/image", {
+      method: "POST",
       body: JSON.stringify({
-        
-      })
-    }).then(res => res.json());
-    
+        prompt,
+      }),
+    }).then((res) => res.json());
+
     setImage(image);
     setIsLoading(false);
   }
@@ -41,19 +44,19 @@ export default function Home() {
         <link rel="icon" href="/favicon.ico" />
       </Head>
       <Section>
-        <Container className={styles.cardContainer} size="content">
-          <Form className={styles.form}>
-            {image && (<img src={image} alt="Generated Image" />) }
+        <Container size="content">
+          <Form className={styles.form} onSubmit={handleOnGenerate}>
+            {image && <img src={image} alt="Generated Image" />}
             <h2>Generate an Image</h2>
             <FormRow>
               <FormInput type="text" name="prompt" />
             </FormRow>
             <FormRow>
-              <Button onClick={handleOnGenerate} disabled={isLoading}>Generate</Button>
+              <Button disabled={isLoading}>Generate</Button>
             </FormRow>
           </Form>
         </Container>
       </Section>
     </Layout>
-  )
+  );
 }

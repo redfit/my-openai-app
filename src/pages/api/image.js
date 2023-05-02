@@ -7,11 +7,13 @@ const configuration = new Configuration({
 const openai = new OpenAIApi(configuration);
 
 export default async function handler(req, res) {
+  const { prompt } = JSON.parse(req.body);
+
   const response = await openai.createImage({
-    prompt: "噴火する富士山",
+    prompt,
     n: 1,
     size: "512x512",
   });
 
-  res.status(200).json({ data: response.data.data });
+  res.status(200).json({ image: response.data.data[0].url });
 }
