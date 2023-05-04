@@ -3,7 +3,7 @@ export const config = {
 };
 
 export default async function handler(req, context) {
-  // const { prompt } = await req.json();
+  const { prompt } = await req.json();
 
   const completion = await fetch("https://api.openai.com/v1/chat/completions", {
     method: "POST",
@@ -15,8 +15,8 @@ export default async function handler(req, context) {
           content: prompt,
         },
       ],
+      stream: true,
     }),
-    stream: true,
     headers: {
       "Content-Type": "application/json",
       Authorization: `Bearer ${process.env.OPENAI_API_KEY}`,
