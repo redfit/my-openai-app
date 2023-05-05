@@ -19,6 +19,7 @@ function getFieldFromFormByName({ name, form } = {}) {
 
 export default function Home() {
   const [text, setText] = useState();
+  const [attributes, setAttributes] = useState();
   const [image, setImage] = useState();
   const [isLoading, setIsLoading] = useState(false);
 
@@ -31,48 +32,48 @@ export default function Home() {
     });
 
     setIsLoading(true);
-    setText(undefined);
+    setAttributes(undefined);
 
-    const response = await fetch("/api/chat-stream", {
+    const { data } = await fetch("/api/attributes", {
       method: "POST",
       body: JSON.stringify({
         prompt,
       }),
-    });
+    }).then((r) => r.json());
 
-    const reader = response.body.getReader();
-    const decoder = new TextDecoder();
+    // const reader = response.body.getReader();
+    // const decoder = new TextDecoder();
+    //
+    // function onParse(event) {
+    //   if (event.type === "event") {
+    //     try {
+    //       const data = JSON.parse(event.data);
+    //       data.choices
+    //         .filter(({ delta }) => !!delta.content)
+    //         .forEach(({ delta }) => {
+    //           setText((prev) => {
+    //             return `${prev || ""}${delta.content}`;
+    //           });
+    //         });
+    //     } catch (e) {
+    //       console.log(e);
+    //     }
+    //   }
+    // }
+    //
+    // const parser = createParser(onParse);
+    //
+    // while (true) {
+    //   const { value, done } = await reader.read();
+    //   const dataString = decoder.decode(value);
+    //
+    //   if (done || dataString.includes("[DONE]")) break;
+    //
+    //   parser.feed(dataString);
+    // }
 
-    function onParse(event) {
-      if (event.type === "event") {
-        try {
-          const data = JSON.parse(event.data);
-          data.choices
-            .filter(({ delta }) => !!delta.content)
-            .forEach(({ delta }) => {
-              setText((prev) => {
-                return `${prev || ""}${delta.content}`;
-              });
-            });
-        } catch (e) {
-          console.log(e);
-        }
-      }
-    }
-
-    const parser = createParser(onParse);
-
-    while (true) {
-      const { value, done } = await reader.read();
-      const dataString = decoder.decode(value);
-
-      if (done || dataString.includes("[DONE]")) break;
-
-      parser.feed(dataString);
-    }
-
-    // setText(data);
-    // setIsLoading(false);
+    setAttributes(data.attributes);
+    setIsLoading(false);
   }
 
   async function handleOnGenerateImage(e) {
@@ -116,7 +117,10 @@ export default function Home() {
               <Button disabled={isLoading}>Generate</Button>
             </FormRow>
           </Form>
-          {text && <p>{text}</p>}
+          {attributes &&
+            attributes.map((attribute) => {
+              return <p key={attribute}>{attribute}</p>;
+            })}
         </Container>
       </Section>
       <Section>
