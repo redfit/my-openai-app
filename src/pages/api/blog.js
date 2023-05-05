@@ -9,20 +9,36 @@ export default async function handler(req, res) {
   const { prompt } = JSON.parse(req.body);
 
   const shape = {
-    content: "blog content",
+    title: "Sports Title",
+    content: "<p>A blog post about current Sports</p>",
   };
 
   const completion = await openai.createChatCompletion({
     model: "gpt-3.5-turbo",
     messages: [
       {
+        role: "system",
+        content: `
+          You are an assistant that creates new blog posts on a given topic.
+          You should provide a title and HTML content in JSON format.
+        `,
+      },
+      {
         role: "user",
-        content: `Create a blog post with the following topic: ${prompt}. Format the response as a JSON object with a shape of ${JSON.stringify(
-          shape
-        )}. And in Japanese`,
+        content: "sports",
+      },
+      {
+        role: "assistant",
+        content: JSON.stringify(shape),
+      },
+      {
+        role: "user",
+        content: `Create a blog post with the following topic: ${prompt}`,
       },
     ],
   });
+
+  console.log(completion.data.choices);
 
   const data = JSON.parse(completion.data.choices[0].message.content);
 

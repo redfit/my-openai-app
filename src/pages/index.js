@@ -39,7 +39,21 @@ export default function Home() {
       }),
     }).then((r) => r.json());
 
-    setPost(data.content);
+    setPost(data);
+
+    const { image } = await fetch("/api/image", {
+      method: "POST",
+      body: JSON.stringify({
+        prompt: data.title,
+      }),
+    }).then((r) => r.json());
+
+    setPost((prev) => {
+      return {
+        ...prev,
+        image,
+      };
+    });
     setIsLoading(false);
   }
 
@@ -63,7 +77,17 @@ export default function Home() {
               <Button disabled={isLoading}>Generate</Button>
             </FormRow>
           </Form>
-          {post && <div>{post}</div>}
+          {post && (
+            <div>
+              {post.image && <img src={post.image} />}
+              <h1>{post.title}</h1>
+              <div
+                dangerouslySetInnerHTML={{
+                  __html: post.content,
+                }}
+              />
+            </div>
+          )}
         </Container>
       </Section>
     </Layout>
