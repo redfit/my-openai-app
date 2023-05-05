@@ -18,83 +18,28 @@ function getFieldFromFormByName({ name, form } = {}) {
 }
 
 export default function Home() {
-  const [text, setText] = useState();
-  const [attributes, setAttributes] = useState();
-  const [image, setImage] = useState();
+  const [post, setPost] = useState();
   const [isLoading, setIsLoading] = useState(false);
 
   async function handleOnGenerateText(e) {
     e.preventDefault();
 
     const { value: prompt } = getFieldFromFormByName({
-      name: "prompt-chat",
+      name: "prompt-blog",
       form: e.currentTarget,
     });
 
     setIsLoading(true);
-    setAttributes(undefined);
+    setPost(undefined);
 
-    const { data } = await fetch("/api/attributes", {
+    const { data } = await fetch("/api/blog", {
       method: "POST",
       body: JSON.stringify({
         prompt,
       }),
     }).then((r) => r.json());
 
-    // const reader = response.body.getReader();
-    // const decoder = new TextDecoder();
-    //
-    // function onParse(event) {
-    //   if (event.type === "event") {
-    //     try {
-    //       const data = JSON.parse(event.data);
-    //       data.choices
-    //         .filter(({ delta }) => !!delta.content)
-    //         .forEach(({ delta }) => {
-    //           setText((prev) => {
-    //             return `${prev || ""}${delta.content}`;
-    //           });
-    //         });
-    //     } catch (e) {
-    //       console.log(e);
-    //     }
-    //   }
-    // }
-    //
-    // const parser = createParser(onParse);
-    //
-    // while (true) {
-    //   const { value, done } = await reader.read();
-    //   const dataString = decoder.decode(value);
-    //
-    //   if (done || dataString.includes("[DONE]")) break;
-    //
-    //   parser.feed(dataString);
-    // }
-
-    setAttributes(data.attributes);
-    setIsLoading(false);
-  }
-
-  async function handleOnGenerateImage(e) {
-    e.preventDefault();
-
-    const { value: prompt } = getFieldFromFormByName({
-      name: "prompt-image",
-      from: e.currentTarget,
-    });
-
-    setIsLoading(true);
-    setImage(undefined);
-
-    const { image } = await fetch("/api/image", {
-      method: "POST",
-      body: JSON.stringify({
-        prompt,
-      }),
-    }).then((res) => res.json());
-
-    setImage(image);
+    setPost(data.content);
     setIsLoading(false);
   }
 
@@ -109,32 +54,16 @@ export default function Home() {
       <Section>
         <Container size="content">
           <Form className={styles.form} onSubmit={handleOnGenerateText}>
-            <h2>Generate Chat Completion</h2>
+            <h2>Generate Post</h2>
             <FormRow>
-              <FormInput type="text" name="prompt-chat" />
+              <label>Enter Your Topic:</label>
+              <FormInput type="text" name="prompt-blog" />
             </FormRow>
             <FormRow>
               <Button disabled={isLoading}>Generate</Button>
             </FormRow>
           </Form>
-          {attributes &&
-            attributes.map((attribute) => {
-              return <p key={attribute}>{attribute}</p>;
-            })}
-        </Container>
-      </Section>
-      <Section>
-        <Container size="content">
-          <Form className={styles.form} onSubmit={handleOnGenerateImage}>
-            {image && <img src={image} alt="Generated Image" />}
-            <h2>Generate an Image</h2>
-            <FormRow>
-              <FormInput type="text" name="prompt-image" />
-            </FormRow>
-            <FormRow>
-              <Button disabled={isLoading}>Generate</Button>
-            </FormRow>
-          </Form>
+          {post && <div>{post}</div>}
         </Container>
       </Section>
     </Layout>
