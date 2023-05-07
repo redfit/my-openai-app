@@ -44,7 +44,10 @@ export default function Home() {
     const { image } = await fetch("/api/image", {
       method: "POST",
       body: JSON.stringify({
-        prompt: data.title,
+        prompt: `
+          ${data.title}.
+          stylized as watercolor painting.
+        `,
       }),
     }).then((r) => r.json());
 
